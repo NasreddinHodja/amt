@@ -47,6 +47,7 @@ def get_credentials():
     f = open(amt_path + '/auth.json', 'r')
     credentials = json.load(f)
 
+    f.close()
     return credentials
 
 def fill_zeros(n, size):
