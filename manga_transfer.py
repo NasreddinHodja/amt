@@ -43,6 +43,12 @@ def register():
     with open(amt_path + '/auth.json', 'w') as f:
         f.write(json.dumps(credentials, indent=4))
 
+def get_credentials():
+    f = open(amt_path + '/auth.json', 'r')
+    credentials = json.load(f)
+
+    return credentials
+
 def fill_zeros(n, size):
     res = str(n)
     while len(res) < size:
@@ -87,25 +93,24 @@ def main():
         else:
             end_idx   = int(sys.argv[3])
 
-        with open(amt_path + '/auth.json', 'r') as f:
-            credentials = json.load(f)
-            with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
-                cprint('Connection established ... ', 'white', attrs=['bold'])
-                # cd to folder in device
-                sftp.cwd('Pictures/manga/')
+        credentials = get_credentials()
+        with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
+            cprint('Connection established ... ', 'white', attrs=['bold'])
+            # cd to folder in device
+            sftp.cwd('Pictures/manga/')
 
-                # put each chapter
-                for i in range(start_idx, end_idx+1):
-                    chapter_dir = f'chapter_{fill_zeros(i, 4)}'
-                    localpath = path + chapter_dir
-                    remotepath = chapter_dir
+            # put each chapter
+            for i in range(start_idx, end_idx+1):
+                chapter_dir = f'chapter_{fill_zeros(i, 4)}'
+                localpath = path + chapter_dir
+                remotepath = chapter_dir
 
-                    cprint(f'* {chapter_dir} transfering ... *', 'blue', attrs=['bold'])
-                    sftp.mkdir(remotepath)
-                    sftp.put_r(localpath=localpath, remotepath=remotepath)
+                cprint(f'* {chapter_dir} transfering ... *', 'blue', attrs=['bold'])
+                sftp.mkdir(remotepath)
+                sftp.put_r(localpath=localpath, remotepath=remotepath)
 
-                    clr_line()
-                    cprint(f'~ {chapter_dir} done! ~', 'green', attrs=['bold'])
+                clr_line()
+                cprint(f'~ {chapter_dir} done! ~', 'green', attrs=['bold'])
 
     else:
         print(__doc__)
