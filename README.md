@@ -1,12 +1,3 @@
-
-# Table of Contents
-
-1.  [Usage](#org5695836)
-
-
-
-<a id="org5695836"></a>
-
 # Usage
 
 For a simpler execution, we are assuming the command to run this script is aliased to `amt`.  
