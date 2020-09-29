@@ -22,8 +22,8 @@ import json
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
 
-path = '/mnt/nasHDD/manga/'
-amt_path = str(pathlib.Path(__file__).parent.absolute())
+MANGA_PATH = '/mnt/nasHDD/manga/'
+AMT_PATH = str(pathlib.Path(__file__).parent.absolute())
 
 def clr_line():
     print ("\033[A                                            \033[A")
@@ -40,11 +40,11 @@ def register():
     cprint(' * password: ', 'blue', end='', attrs=['bold'])
     credentials['password'] = input()
 
-    with open(amt_path + '/auth.json', 'w') as f:
+    with open(AMT_PATH + '/auth.json', 'w') as f:
         f.write(json.dumps(credentials, indent=4))
 
 def get_credentials():
-    f = open(amt_path + '/auth.json', 'r')
+    f = open(AMT_PATH + '/auth.json', 'r')
     credentials = json.load(f)
 
     f.close()
@@ -57,9 +57,8 @@ def fill_zeros(n, size):
     return res
 
 def get_mangas():
-    manga_dir = '/mnt/nasHDD/manga'
-    return [name for name in os.listdir(manga_dir)
-            if os.path.isdir(os.path.join(manga_dir, name))]
+    return [name for name in os.listdir(MANGA_PATH)
+            if os.path.isdir(os.path.join(MANGA_PATH, name))]
 
 def print_mangas():
     mangas = get_mangas()
@@ -78,7 +77,7 @@ def print_mangas():
         cprint(''.join(word.ljust(col_width) for word in row), 'blue', attrs=['bold'])
 
 def main():
-    global path, amt_path
+    global MANGA_PATH, AMT_PATH
     if len(sys.argv) == 2:
         if sys.argv[1] == 'register':
             register()
@@ -86,7 +85,7 @@ def main():
             print_mangas()
 
     elif len(sys.argv) >= 3:
-        path = path + sys.argv[1] + '/'
+        path = MANGA_PATH + sys.argv[1] + '/'
         start_idx = int(sys.argv[2])
 
         if len(sys.argv) == 3:
