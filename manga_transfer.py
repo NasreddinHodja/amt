@@ -22,13 +22,6 @@ import json
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
 
-# credentials = {
-#     'host'    : '192.168.1.100',
-#     'port'    : 1234,
-#     'username': 'nasredd1n',
-#     'password': 'oceanboie'
-# }
-
 path = '/mnt/nasHDD/manga/'
 amt_path = str(pathlib.Path(__file__).parent.absolute())
 
