@@ -50,12 +50,6 @@ def get_credentials():
     f.close()
     return credentials
 
-def fill_zeros(n, size):
-    res = str(n)
-    while len(res) < size:
-        res = '0' + res
-    return res
-
 def get_mangas():
     return [name for name in os.listdir(MANGA_PATH)
             if os.path.isdir(os.path.join(MANGA_PATH, name))]
@@ -101,7 +95,7 @@ def main():
 
             # put each chapter
             for i in range(start_idx, end_idx+1):
-                chapter_dir = f'chapter_{fill_zeros(i, 4)}'
+                chapter_dir = f'chapter_{str(i).zfill(4)}'
                 localpath = path + chapter_dir
                 remotepath = chapter_dir
 
