@@ -50,6 +50,15 @@ def get_credentials():
     f.close()
     return credentials
 
+def is_fractioned(path):
+    chapters = os.listdir(path)
+
+    for chap in chapters:
+        if "-" in chap:
+            return True
+
+    return False
+
 def get_mangas():
     return [name for name in os.listdir(MANGA_PATH)
             if os.path.isdir(os.path.join(MANGA_PATH, name))]
@@ -72,6 +81,7 @@ def print_mangas():
 
 def main():
     global MANGA_PATH, AMT_PATH
+
     if len(sys.argv) == 2:
         if sys.argv[1] == 'register':
             register()
@@ -81,6 +91,9 @@ def main():
     elif len(sys.argv) >= 3:
         path = MANGA_PATH + sys.argv[1] + '/'
         start_idx = int(sys.argv[2])
+
+        fractioned = is_fractioned(path)
+        chapters = os.listdir(path)
 
         if len(sys.argv) == 3:
             end_idx = int(sys.argv[2])
@@ -96,15 +109,16 @@ def main():
             # put each chapter
             for i in range(start_idx, end_idx+1):
                 chapter_dir = f'chapter_{str(i).zfill(4)}'
-                localpath = path + chapter_dir
-                remotepath = chapter_dir
 
-                cprint(f'* {chapter_dir} transfering ... *', 'blue', attrs=['bold'])
-                sftp.mkdir(remotepath)
-                sftp.put_r(localpath=localpath, remotepath=remotepath)
+                for chap in [x for x in chapters if chapter_dir in x]:
+                    localpath = path + chap
+                    remotepath = chap
+                    cprint(f'* {chap} transfering ... *', 'blue', attrs=['bold'])
+                    sftp.mkdir(remotepath)
+                    sftp.put_r(localpath=localpath, remotepath=remotepath)
 
-                clr_line()
-                cprint(f'~ {chapter_dir} done! ~', 'green', attrs=['bold'])
+                    clr_line()
+                    cprint(f'~ {chap} done! ~', 'green', attrs=['bold'])
 
     else:
         print(__doc__)
