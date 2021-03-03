@@ -64,20 +64,7 @@ def get_mangas():
             if os.path.isdir(os.path.join(MANGA_PATH, name))]
 
 def print_mangas():
-    mangas = get_mangas()
-    options = []
-
-    while len(mangas) > 0:
-        col = []
-        for i in range(5):
-            col += [mangas.pop(0)]
-            if len(mangas) == 0:
-                break
-        options += [col]
-
-    col_width = max(len(word) for row in options for word in row) + 2  # padding
-    for row in options:
-        cprint(''.join(word.ljust(col_width) for word in row), 'blue', attrs=['bold'])
+    os.system("ls " + MANGA_PATH)
 
 def main():
     global MANGA_PATH, AMT_PATH
@@ -108,7 +95,9 @@ def main():
 
             # put each chapter
             for i in range(start_idx, end_idx+1):
-                chapter_dir = f'chapter_{str(i).zfill(4)}'
+                chapter_dir = f'chapter_{str(i).zfill(4)}-'
+                if start_idx >= 1000:
+                    chapter_dir = f'chapter_{str(i).zfill(5)}-'
 
                 for chap in [x for x in chapters if chapter_dir in x]:
                     localpath = path + chap
