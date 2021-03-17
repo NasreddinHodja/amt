@@ -1,5 +1,5 @@
 auth.json
 *.org
 __pycache__/*
-venv/
+.env/
 README.org
