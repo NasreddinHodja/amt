@@ -22,7 +22,7 @@ import json
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
 
-MANGA_PATH = '/mnt/nasHDD/manga/'
+MANGA_PATH = '/mnt/storage/manga/'
 AMT_PATH = str(pathlib.Path(__file__).parent.absolute())
 
 def clr_line():
