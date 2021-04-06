@@ -112,4 +112,7 @@ def main():
     print(__doc__)
 
 if __name__ == '__main__':
-  main()
+  try:
+    main()
+  except KeyboardInterrupt:
+    pass
