@@ -15,30 +15,25 @@ import os
 import pathlib
 
 import pysftp
-from termcolor import cprint
 import json
-
-# disable public key requirement
-cnopts = pysftp.CnOpts()
-cnopts.hostkeys = None
-
-MANGA_PATH = '/mnt/storage/manga/'
-AMT_PATH = str(pathlib.Path(__file__).parent.absolute())
+from rich.console import Console
 
 def clr_line():
   print ("\033[A                                            \033[A")
 
 def register():
   credentials = {}
-  cprint('Please register your credentials.', 'red', attrs=['bold'])
-  cprint(' * host: ', 'blue', end='', attrs=['bold'])
+  console.print('[red bold]Please register your credentials[/red bold]')
+  console.print('[blue bold] * host: [/blue bold]')
   credentials['host'] = input()
-  cprint(' * port: ', 'blue', end='', attrs=['bold'])
+  console.print('[blue bold] * port: [/blue bold]')
   credentials['port'] = int(input())
-  cprint(' * username: ', 'blue', end='', attrs=['bold'])
+  console.print('[blue bold] * username: [/blue bold]')
   credentials['username'] = input()
-  cprint(' * password: ', 'blue', end='', attrs=['bold'])
+  console.print('[blue bold] * password: [/blue bold]')
   credentials['password'] = input()
+  console.print('[blue bold] * local manga directory: [/blue bold]')
+  credentials['manga_path'] = input()
 
   with open(AMT_PATH + '/auth.json', 'w') as f:
     f.write(json.dumps(credentials, indent=4))
@@ -48,6 +43,7 @@ def get_credentials():
   credentials = json.load(f)
 
   f.close()
+  MANGA_PATH = credentials.pop("manga_path")
   return credentials
 
 def is_fractioned(path):
@@ -66,8 +62,19 @@ def get_mangas():
 def print_mangas():
   os.system("ls " + MANGA_PATH)
 
+def init():
+  global MANGA_PATH, AMT_PATH, cnopts, console
+
+  # disable public key requirement
+  cnopts = pysftp.CnOpts()
+  cnopts.hostkeys = None
+
+  AMT_PATH = str(pathlib.Path(__file__).parent.absolute())
+
+  console = Console()
+
 def main():
-  global MANGA_PATH, AMT_PATH
+  init()
 
   if len(sys.argv) == 2:
     if sys.argv[1] == 'register':
@@ -89,7 +96,7 @@ def main():
 
     credentials = get_credentials()
     with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
-      cprint('Connection established ... ', 'white', attrs=['bold'])
+      console.print('[white bold]Connection established ... [/white bold]')
       # cd to folder in device
       sftp.cwd('Pictures/manga/')
 
@@ -102,12 +109,12 @@ def main():
         for chap in [x for x in chapters if chapter_dir in x]:
           localpath = path + chap
           remotepath = chap
-          cprint(f'* {chap} transfering ... *', 'blue', attrs=['bold'])
+          console.print(f'[blue bold]* {chap} transfering ... *[/blue bold]')
           sftp.mkdir(remotepath)
           sftp.put_r(localpath=localpath, remotepath=remotepath)
 
           clr_line()
-          cprint(f'~ {chap} done! ~', 'green', attrs=['bold'])
+          console.print(f'[green bold]~ {chap} done! ~[/green bold]')
   else:
     print(__doc__)
 
