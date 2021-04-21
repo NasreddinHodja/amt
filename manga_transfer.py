@@ -131,5 +131,6 @@ def main():
 if __name__ == '__main__':
   try:
     main()
+    clr_line()
   except KeyboardInterrupt:
     pass
