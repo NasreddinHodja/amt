@@ -103,8 +103,6 @@ def main():
         task = progress.add_task('[bold white]transfering...', total=(end_idx+1-start_idx))
         for i in range(start_idx, end_idx+1):
           chapter_dir = f'chapter_{str(i).zfill(4)}-'
-          if start_idx >= 1000:
-            chapter_dir = f'chapter_{str(i).zfill(5)}-'
 
           for chap in [x for x in chapters if chapter_dir in x]:
             localpath = Path(path, chap)
