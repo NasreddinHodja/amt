@@ -96,7 +96,7 @@ def main():
 
     with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
       console.print('[green bold]Connection established ...')
-      sftp.cwd('Pictures/manga')
+      sftp.cwd(str(DESTINATION_PATH))
 
       # put each chapter
       with Progress(console=console, expand=True, transient=True) as progress:
