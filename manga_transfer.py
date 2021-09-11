@@ -61,6 +61,12 @@ def get_credentials():
 def print_mangas():
   os.system('ls ' + str(SOURCE_PATH))
 
+def get_mangas():
+  return os.listdir(SOURCE_PATH)
+
+def max_chap(manga_path):
+  return max([int(str(manga.split("-")[0])[8:]) for manga in os.listdir(manga_path)])
+
 def init():
   global AMT_PATH, cnopts, console, credentials
 
@@ -74,43 +80,51 @@ def init():
   if 'register' not in sys.argv:
     get_credentials()
 
+def send_manga(manga_path, start_idx, end_idx):
+  chapters = os.listdir(manga_path)
+  with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
+    console.print('[green bold]Connection established ...')
+    sftp.cwd(str(DESTINATION_PATH))
+
+    # put each chapter
+    with Progress(console=console, expand=True, transient=True) as progress:
+      task = progress.add_task('[bold white]transfering...', total=(end_idx+1-start_idx))
+      for i in range(start_idx, end_idx+1):
+        chapter_dir = f'chapter_{str(i).zfill(4)}-'
+
+        for chap in [x for x in chapters if chapter_dir in x]:
+          localpath = Path(manga_path, chap)
+          remotepath = chap
+          sftp.mkdir(remotepath)
+          sftp.put_r(localpath=localpath, remotepath=remotepath)
+
+        progress.advance(task)
+
 def main():
   init()
 
-  if len(sys.argv) == 2:
-    if sys.argv[1] == 'register':
-      register()
-    if sys.argv[1] == 'list':
-      print_mangas()
+  if len(sys.argv) == 2 and sys.argv[1] == 'register':
+    register()
+  elif len(sys.argv) == 2 and sys.argv[1] == 'list':
+    print_mangas()
+  elif sys.argv[1] in get_mangas():
+    manga_path = Path(SOURCE_PATH, sys.argv[1])
+    start_idx = 0
+    end_idx = 0
 
-  elif len(sys.argv) >= 3:
-    path = Path(SOURCE_PATH, sys.argv[1])
-    start_idx = int(sys.argv[2])
-
-    chapters = os.listdir(path)
-
-    if len(sys.argv) == 3:
-      end_idx = int(sys.argv[2])
-    else:
+    if len(sys.argv) == 2:
+      end_idx = max_chap(manga_path)
+    elif len(sys.argv) == 3:
+      start_idx = int(sys.argv[2])
+      end_idx = start_idx
+    elif len(sys.argv) == 4:
+      start_idx = int(sys.argv[2])
       end_idx = int(sys.argv[3])
+    else:
+      exit(1)
 
-    with pysftp.Connection(**credentials, cnopts=cnopts) as sftp:
-      console.print('[green bold]Connection established ...')
-      sftp.cwd(str(DESTINATION_PATH))
+    send_manga(manga_path, start_idx, end_idx)
 
-      # put each chapter
-      with Progress(console=console, expand=True, transient=True) as progress:
-        task = progress.add_task('[bold white]transfering...', total=(end_idx+1-start_idx))
-        for i in range(start_idx, end_idx+1):
-          chapter_dir = f'chapter_{str(i).zfill(4)}-'
-
-          for chap in [x for x in chapters if chapter_dir in x]:
-            localpath = Path(path, chap)
-            remotepath = chap
-            sftp.mkdir(remotepath)
-            sftp.put_r(localpath=localpath, remotepath=remotepath)
-
-          progress.advance(task)
   else:
     print(__doc__)
 
